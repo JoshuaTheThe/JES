@@ -15,7 +15,6 @@ create:
 				Item->W, Item->H);
 	}
 
-
 	if (Item->Tex && Item->redraw)
 	{
 		int32_t W, H;
