@@ -1,10 +1,17 @@
-#ifndef UI_H
-#define UI_H
+#ifndef MAIN_UI_H
+#define MAIN_UI_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
+#include <math.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 typedef enum
 {
@@ -19,6 +26,33 @@ typedef enum
 
 struct UIItem;
 typedef struct UIItem UIItem;
+struct JESState;
+typedef struct JESState JESState;
+
+typedef struct UIText
+{
+	TTF_Font *Font;
+	char *Text;
+	size_t TextSize;
+	size_t FontSize;
+} UIText;
+
+typedef struct UIContainer
+{
+	uint32_t ColourRGBA;
+	size_t MouseX, MouseY; /* Position within the window */
+} UIContainer;
+
+/**
+ * If not cleared or sorted, we will run out of memory.
+ * please process events, even if your just deleting them.
+ */
+
+typedef struct UIEventQueue
+{
+	SDL_Event *items;
+	size_t count, capacity;
+} UIEventQueue;
 
 /* UIItem owns its children.
  * UI tree is immutable during draw.
@@ -26,10 +60,21 @@ typedef struct UIItem UIItem;
  */
 typedef struct UIItem
 {
+	UIEventQueue Events;
+	UIItem **items;
+	SDL_Texture *Tex;
 	UIType Type;
 	size_t X, Y, Z, W, H;
-	UIItem *items;
 	size_t count, capacity;
+	bool redraw, focused;
+
+	union
+	{
+		UIText Text;
+		UIContainer Container;
+	} as;
+
+	void (*Tick)(UIItem *Self);
 } UIItem;
 
 #define da_append(xs, x)                                                                           \
@@ -65,7 +110,10 @@ typedef struct UIItem
         } while (0)
 
 
-void UIRecursiveDraw(UIItem *Item);
+UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z);
+void UIRecursiveDraw(UIItem *Item, JESState *State);
+void UIFree(UIItem *Root);
+void UIRecursiveTick(UIItem *Root);
 
 #endif
 

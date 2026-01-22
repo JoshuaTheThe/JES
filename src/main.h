@@ -11,22 +11,24 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_image.h>
-
-#include <ui/main.h>
+#include <SDL2/SDL_ttf.h>
 
 struct UIItem;
 typedef struct UIItem UIItem;
 
-typedef struct
+typedef struct JESState
 {
-	UIItem root;
+	UIItem *root;
 	size_t count, capacity;
 	const int32_t initialWidth, initialHeight;
 	const int32_t initialX, initialY;
 	int32_t Width, Height;
-	int32_t X, Y;
+	int32_t X, Y, FrameDelay;
 
-	bool running, redraw;
+	bool running;
+
+	SDL_Renderer *Renderer;
+	SDL_Window *Window;
 } JESState;
 
 extern pthread_mutex_t lock; 

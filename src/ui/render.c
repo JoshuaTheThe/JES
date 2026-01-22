@@ -1,5 +1,6 @@
 #include <ui/main.h>
 #include <ui/render.h> 
+#include <main.h>
 
 /**
  * StartRendering()
@@ -42,9 +43,12 @@ void StartRendering(JESState *State)
 			SDL_GetError());
 		goto RendererFail;
 	}
-	
+
 	pthread_mutex_lock(&lock);
-	bool running = State->running, redraw = State->redraw;
+	State->Window = Window;
+	State->Renderer = Renderer;
+	bool running = State->running, redraw = State->root->redraw;
+	int32_t FrameDelay = State->FrameDelay;
 	pthread_mutex_unlock(&lock);
 	while (running)
 	{
@@ -58,11 +62,17 @@ void StartRendering(JESState *State)
 					State->running = false;
 					pthread_mutex_unlock(&lock);
 					break;
+				default:
+					pthread_mutex_lock(&lock);
+					da_append(&State->root->Events, ev);
+					pthread_mutex_unlock(&lock);
+					break;
 			}
 		}
 		pthread_mutex_lock(&lock);
 		running = State->running;
-		redraw = State->redraw;
+		redraw = State->root->redraw;
+		FrameDelay = State->FrameDelay;
 		pthread_mutex_unlock(&lock);
 		if (redraw)
 		{
@@ -73,10 +83,11 @@ void StartRendering(JESState *State)
 					0xff);
 			SDL_RenderClear(Renderer);
 			/* TODO - Implement thread safety by cloning the tree */
-			UIRecursiveDraw(&State->root);
+			UIRecursiveTick(State->root);
+			UIRecursiveDraw(State->root, State);
 			SDL_RenderPresent(Renderer);
 		}
-		SDL_Delay(16);
+		SDL_Delay(FrameDelay);
 	}
 
 	SDL_DestroyRenderer(Renderer);
