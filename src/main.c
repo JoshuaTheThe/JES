@@ -18,8 +18,6 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 void tick(UIItem *Item)
 {
 	static int dx = 1, dy = 1;
-	Item->items[0]->X += dx;
-	Item->items[0]->Y += dy;
 	if (Item->items[0]->X +
 	    Item->items[0]->W >= Item->W)
 		dx = -1;
@@ -30,6 +28,8 @@ void tick(UIItem *Item)
 		dy = -1;
 	else if (Item->items[0]->Y <= 0)
 		dy = 1;
+	Item->items[0]->X += dx;
+	Item->items[0]->Y += dy;
 	Item->redraw = true;
 
 	if (Item->Events.items)
@@ -56,8 +56,8 @@ int main(void)
 	Root->Tick = tick;
 
 	UIItem *X = UICreate(Root, JES_UITYPE_CONTAINER, 10, 10, 0);
-	X->W = 32;
-	X->H = 32;
+	X->W = 256;
+	X->H = 256;
 	X->as.Container.ColourRGBA = 0xAAAA00FF;
 	X->redraw = true;
 

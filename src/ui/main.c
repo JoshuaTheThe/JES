@@ -6,6 +6,7 @@
  */
 static void UIDrawContainer(UIItem *Item, JESState *State)
 {
+create:
 	if (!Item->Tex)
 	{
 		Item->Tex = SDL_CreateTexture(State->Renderer,
@@ -14,8 +15,17 @@ static void UIDrawContainer(UIItem *Item, JESState *State)
 				Item->W, Item->H);
 	}
 
+
 	if (Item->Tex && Item->redraw)
 	{
+		int32_t W, H;
+		SDL_QueryTexture(Item->Tex, NULL, NULL, &W, &H);
+		if (Item->W != (size_t)W || Item->H != (size_t)H)
+		{
+			SDL_DestroyTexture(Item->Tex);
+			Item->Tex = NULL;
+			goto create;
+		}
 		SDL_Texture *Old = SDL_GetRenderTarget(State->Renderer);
 		SDL_SetRenderTarget(State->Renderer,
 				Item->Tex);
