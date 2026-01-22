@@ -1,5 +1,5 @@
 #include <ui/main.h>
-#include <ui/render.h> 
+#include <ui/render.h>
 #include <main.h>
 
 /**
@@ -38,10 +38,10 @@ void StartRendering(JESState *State)
 	}
 
 	SDL_Renderer *Renderer = SDL_CreateRenderer(Window,
-			-1,
-			SDL_RENDERER_ACCELERATED |
-			SDL_RENDERER_PRESENTVSYNC |
-			SDL_RENDERER_TARGETTEXTURE);
+						    -1,
+						    SDL_RENDERER_ACCELERATED |
+							SDL_RENDERER_PRESENTVSYNC |
+							SDL_RENDERER_TARGETTEXTURE);
 
 	if (Renderer == NULL)
 	{
@@ -64,16 +64,32 @@ void StartRendering(JESState *State)
 		{
 			switch (ev.type)
 			{
-				case SDL_QUIT:
-					pthread_mutex_lock(&lock);
-					State->running = false;
-					pthread_mutex_unlock(&lock);
+			case SDL_QUIT:
+				pthread_mutex_lock(&lock);
+				State->running = false;
+				pthread_mutex_unlock(&lock);
+				break;
+			case SDL_WINDOWEVENT:
+				switch (ev.window.event)
+				{
+				case SDL_WINDOWEVENT_RESIZED:
+					printf("Window resized: %dx%d\n",
+					       ev.window.data1, ev.window.data2);
+					State->Width = ev.window.data1;
+					State->Height = ev.window.data2;
+					State->root->redraw = true;
+					State->root->W = State->Width;
+					State->root->H = State->Height;
 					break;
-				default:
-					pthread_mutex_lock(&lock);
-					da_append(&State->root->Events, ev);
-					pthread_mutex_unlock(&lock);
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
 					break;
+				}
+				break;
+			default:
+				pthread_mutex_lock(&lock);
+				da_append(&State->root->Events, ev);
+				pthread_mutex_unlock(&lock);
+				break;
 			}
 		}
 		pthread_mutex_lock(&lock);
@@ -84,10 +100,10 @@ void StartRendering(JESState *State)
 		if (redraw)
 		{
 			SDL_SetRenderDrawColor(Renderer,
-					0x00,
-					0x00,
-				    	0x00,
-					0xff);
+					       0x00,
+					       0x00,
+					       0x00,
+					       0xff);
 			SDL_RenderClear(Renderer);
 			/* TODO - Implement thread safety by cloning the tree */
 			UIRecursiveDraw(State->root, State);

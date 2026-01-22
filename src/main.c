@@ -23,6 +23,8 @@ void tick(UIItem *Item)
 		Item->items[2]->Y += speed;
 	else if (Item->items[2]->Y > targetY)
 		Item->items[2]->Y -= speed;
+	Item->items[2]->X = Item->W - 10 - Item->items[2]->W;
+	Item->items[1]->X = 10;
 
 	if (Item->Events.items)
 	{
@@ -179,7 +181,7 @@ int main(void)
 		.initialHeight = WH,
 		.Width = WW,
 		.Height = WH,
-		.FrameDelay = 8,
+		.FrameDelay = 1,
 		.running  = true,
 		.root = Root,
 		.title = "JES v0.1",
