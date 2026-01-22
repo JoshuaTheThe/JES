@@ -20,6 +20,7 @@ typedef struct JESState
 {
 	UIItem *root;
 	size_t count, capacity;
+	const char *title;
 	const int32_t initialWidth, initialHeight;
 	const int32_t initialX, initialY;
 	int32_t Width, Height;

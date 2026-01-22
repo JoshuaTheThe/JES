@@ -107,6 +107,7 @@ UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z)
 	Q->Y = Y;
 	Q->Z = Z;
 	Q->Type = Type;
+	Q->Parent = Parent;
 
 	if (Parent != NULL)
 		da_append(Parent, Q);
@@ -142,9 +143,9 @@ void UIRecursiveTick(UIItem *Root)
 {
 	if (!Root)
 		return;
-	for (size_t i = 0; i < Root->count; ++i)
-		UIRecursiveTick(Root->items[i]);
 	if (Root->Tick)
 		Root->Tick(Root);
+	for (size_t i = 0; i < Root->count; ++i)
+		UIRecursiveTick(Root->items[i]);
 }
 

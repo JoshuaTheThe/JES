@@ -61,7 +61,7 @@ typedef struct UIEventQueue
 typedef struct UIItem
 {
 	UIEventQueue Events;
-	UIItem **items;
+	UIItem **items, *Parent;
 	SDL_Texture *Tex;
 	UIType Type;
 	size_t X, Y, Z, W, H;

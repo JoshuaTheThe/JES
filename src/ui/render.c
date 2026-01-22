@@ -15,7 +15,7 @@ void StartRendering(JESState *State)
 		return;
 	}
 
-	SDL_Window *Window = SDL_CreateWindow("JES v0.1",
+	SDL_Window *Window = SDL_CreateWindow(State->title,
 			State->initialX,
 			State->initialY,
 			State->initialWidth,
