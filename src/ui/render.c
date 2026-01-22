@@ -83,8 +83,8 @@ void StartRendering(JESState *State)
 					0xff);
 			SDL_RenderClear(Renderer);
 			/* TODO - Implement thread safety by cloning the tree */
-			UIRecursiveTick(State->root);
 			UIRecursiveDraw(State->root, State);
+			UIRecursiveTick(State->root);
 			SDL_RenderPresent(Renderer);
 		}
 		SDL_Delay(FrameDelay);
