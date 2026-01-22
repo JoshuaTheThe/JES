@@ -57,6 +57,13 @@ void ball(UIItem *Item)
 		Item->X = Item->Parent->W / 2;
 		Item->Y = Item->Parent->H / 2;
 		Item->Parent->redraw = true;
+		free(Item->Parent->items[3]->as.Text.items);
+		Item->Parent->items[3]->as.Text.items = NULL;
+		Item->Parent->items[3]->as.Text.count =
+			Item->Parent->items[3]->as.Text.capacity = 0;
+		Item->Parent->items[3]->as.Text.items = malloc(1024);
+		Item->Parent->items[3]->redraw = true;
+		sprintf(Item->Parent->items[3]->as.Text.items, "%d", scoreA - scoreB);
 		return;
 	}
 	else if (Item->X <= 0)
@@ -67,6 +74,13 @@ void ball(UIItem *Item)
 		Item->X = Item->Parent->W / 2;
 		Item->Y = Item->Parent->H / 2;
 		Item->Parent->redraw = true;
+		free(Item->Parent->items[3]->as.Text.items);
+		Item->Parent->items[3]->as.Text.items = NULL;
+		Item->Parent->items[3]->as.Text.count =
+			Item->Parent->items[3]->as.Text.capacity = 0;
+		Item->Parent->items[3]->as.Text.items = malloc(1024);
+		Item->Parent->items[3]->redraw = true;
+		sprintf(Item->Parent->items[3]->as.Text.items, "%d", scoreA - scoreB);
 		return;
 	}
 	if (Item->Y +
@@ -100,6 +114,16 @@ void ball(UIItem *Item)
 	Item->X += dx;
 	Item->Y += dy;
 	Item->Parent->redraw = true;
+}
+
+void textInit(UIItem *Item)
+{
+	static bool initialised = false;
+	if (!initialised)
+	{
+		Item->as.Text.Font = TTF_OpenFont("bin/dos.ttf", Item->as.Text.FontSize);
+		initialised = true;
+	}
 }
 
 int main(void)
@@ -137,6 +161,14 @@ int main(void)
 	PaddleB->H = PH;
 	PaddleB->as.Container.ColourRGBA = 0xAAAA00FF;
 	PaddleB->redraw = true;
+
+	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 0, 0);
+	Text->as.Text.items = strdup("0");
+	Text->as.Text.FontSize = 24;
+	Text->W = 64;
+	Text->H = 24;
+	Text->redraw = true;
+	Text->Tick = textInit;
 
 	JESState State = {
 		.initialX = SDL_WINDOWPOS_CENTERED,

@@ -15,6 +15,13 @@ void StartRendering(JESState *State)
 		return;
 	}
 
+	if (TTF_Init() < 0)
+	{
+		fprintf(stderr, "OpenTTF Error\n");
+		SDL_Quit();
+		return;
+	}
+
 	SDL_Window *Window = SDL_CreateWindow(State->title,
 			State->initialX,
 			State->initialY,

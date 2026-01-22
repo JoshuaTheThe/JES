@@ -32,9 +32,9 @@ typedef struct JESState JESState;
 typedef struct UIText
 {
 	TTF_Font *Font;
-	char *Text;
-	size_t TextSize;
 	size_t FontSize;
+	char *items;
+	size_t count, capacity;
 } UIText;
 
 typedef struct UIContainer

@@ -60,6 +60,47 @@ create:
 			&Rect);
 }
 
+static void UIDrawText(UIItem *Item, JESState *State)
+{
+	if (!Item->as.Text.Font)
+		return;
+create:
+	if (Item->redraw)
+	{
+		if (Item->Tex)
+		{
+			SDL_DestroyTexture(Item->Tex);
+			Item->Tex = NULL;
+			goto create;
+	        }
+		SDL_Color fg = { 255, 255, 255, 255 };
+		SDL_Surface *Surface = TTF_RenderText_Solid(Item->as.Text.Font, Item->as.Text.items, fg);
+		if (!Surface)
+		{
+			fprintf(stderr, "TTF_RenderText_Solid failed: %s\n", TTF_GetError());
+			return;
+		}
+		Item->Tex = SDL_CreateTextureFromSurface(State->Renderer, Surface);
+		if (!Item->Tex)
+		{
+			fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		}
+
+		Item->W = Surface->w;
+		Item->H = Surface->h;
+		SDL_FreeSurface(Surface);
+
+		Item->redraw = false;
+	}
+
+	if (Item->Tex)
+	{
+		SDL_Rect Rect = { .x = Item->X, .y = Item->Y, .w = Item->W, .h = Item->H };
+		SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
+	}
+}
+
+
 /**
  * Recursively draw all children
  * */
@@ -79,6 +120,9 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 		break;
 	case JES_UITYPE_CONTAINER:
 		UIDrawContainer(Item, State);
+		break;
+	case JES_UITYPE_TEXT:
+		UIDrawText(Item, State);
 		break;
 	case JES_UITYPE_FILESELECTOR:
 	default:
@@ -132,8 +176,12 @@ void UIFree(UIItem *Root)
 
 	if (Root->Tex)
 	{
-	    SDL_DestroyTexture(Root->Tex);
-	    Root->Tex = NULL;
+		if (Root->Type == JES_UITYPE_TEXT)
+		{
+			TTF_CloseFont(Root->as.Text.Font);
+		}
+		SDL_DestroyTexture(Root->Tex);
+		Root->Tex = NULL;
 	}
 
 	free(Root);
