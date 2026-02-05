@@ -1,5 +1,5 @@
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +15,9 @@
 #include <main.h>
 #include <ui/main.h>
 
-void StartRendering(JESState *);
+int UIBegin(JESState *);
+void UIEnd(JESState *State);
+void UIUpdate(JESState *State);
 
 #endif
 

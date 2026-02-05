@@ -16,10 +16,8 @@
 typedef enum
 {
 	JES_UITYPE_NONE,
-	JES_UITYPE_FILESELECTOR,
 	JES_UITYPE_TEXT,
 	JES_UITYPE_IMAGE,
-	JES_UITYPE_TEXTBOX,
 	JES_UITYPE_BUTTON,
 	JES_UITYPE_CONTAINER,
 } UIType;
@@ -29,6 +27,21 @@ typedef struct UIItem UIItem;
 struct JESState;
 typedef struct JESState JESState;
 
+enum
+{
+        JES_UI_BUTTON_LEFT,
+        JES_UI_BUTTON_MIDDLE,
+        JES_UI_BUTTON_RIGHT,
+        JES_UI_BUTTON_COUNT,
+};
+
+typedef struct UIButton
+{
+	void (*MouseDown[JES_UI_BUTTON_COUNT])(UIItem *Self, size_t X, size_t Y);
+	void (*MouseUp[JES_UI_BUTTON_COUNT])(UIItem *Self, size_t X, size_t Y);
+        bool Down[JES_UI_BUTTON_COUNT];
+} UIButton;
+
 typedef struct UIText
 {
 	TTF_Font *Font;
@@ -36,12 +49,6 @@ typedef struct UIText
 	char *items;
 	size_t count, capacity;
 } UIText;
-
-typedef struct UIContainer
-{
-	uint32_t ColourRGBA;
-	size_t MouseX, MouseY; /* Position within the window */
-} UIContainer;
 
 /**
  * If not cleared or sorted, we will run out of memory.
@@ -65,14 +72,15 @@ typedef struct UIItem
         JESState *State;
 	SDL_Texture *Tex;
 	UIType Type;
-	size_t X, Y, Z, W, H;
+	int32_t X, Y, Z, W, H;
+	uint32_t ColourRGBA;
 	size_t count, capacity;
 	bool redraw, focused;
 
 	union
 	{
 		UIText Text;
-		UIContainer Container;
+                UIButton Button;
 	} as;
 
 	void (*Tick)(UIItem *Self);
@@ -115,6 +123,8 @@ UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z);
 void UIRecursiveDraw(UIItem *Item, JESState *State);
 void UIFree(UIItem *Root);
 void UIRecursiveTick(UIItem *Root);
+int UICompareItem(const void *A, const void *B);
+void UIFlexX(UIItem *Item);
 
 #endif
 

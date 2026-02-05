@@ -19,7 +19,7 @@ create:
 	{
 		int32_t W, H;
 		SDL_QueryTexture(Item->Tex, NULL, NULL, &W, &H);
-		if (Item->W != (size_t)W || Item->H != (size_t)H)
+		if (Item->W != W || Item->H != H)
 		{
 			SDL_DestroyTexture(Item->Tex);
 			Item->Tex = NULL;
@@ -33,11 +33,12 @@ create:
 			.x = 0, .y = 0,
 			.w = Item->W, .h = Item->H,
 		};
+
+		uint8_t A = Item->ColourRGBA & 255;
+		uint8_t R = Item->ColourRGBA >> 24;
+		uint8_t G = Item->ColourRGBA >> 16;
+		uint8_t B = Item->ColourRGBA >> 8;
 		
-		uint8_t A = Item->as.Container.ColourRGBA & 255;
-		uint8_t R = Item->as.Container.ColourRGBA >> 24;
-		uint8_t G = Item->as.Container.ColourRGBA >> 16;
-		uint8_t B = Item->as.Container.ColourRGBA >> 8;
 		SDL_SetRenderDrawColor(State->Renderer,
 				R, G, B, A);
 		SDL_RenderFillRect(State->Renderer,
@@ -46,18 +47,6 @@ create:
 				Old);
 		Item->redraw = false;
 	}
-
-	SDL_Rect Rect = {
-		.x = Item->X,
-		.y = Item->Y,
-		.w = Item->W,
-		.h = Item->H,
-	};
-
-	SDL_RenderCopy(State->Renderer,
-			Item->Tex,
-			NULL,
-			&Rect);
 }
 
 static void UIDrawText(UIItem *Item, JESState *State)
@@ -72,8 +61,13 @@ create:
 			SDL_DestroyTexture(Item->Tex);
 			Item->Tex = NULL;
 			goto create;
-	        }
-		SDL_Color fg = { 255, 255, 255, 255 };
+		}
+		
+		uint8_t A = Item->ColourRGBA & 255;
+		uint8_t R = Item->ColourRGBA >> 24;
+		uint8_t G = Item->ColourRGBA >> 16;
+		uint8_t B = Item->ColourRGBA >> 8;
+		SDL_Color fg = { R, G, B, A };
 		SDL_Surface *Surface = TTF_RenderText_Solid(Item->as.Text.Font, Item->as.Text.items, fg);
 		if (!Surface)
 		{
@@ -89,17 +83,32 @@ create:
 		Item->W = Surface->w;
 		Item->H = Surface->h;
 		SDL_FreeSurface(Surface);
-
 		Item->redraw = false;
-	}
-
-	if (Item->Tex)
-	{
-		SDL_Rect Rect = { .x = Item->X, .y = Item->Y, .w = Item->W, .h = Item->H };
-		SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
 	}
 }
 
+/**
+ * UIDrawImage - Simply perform a RenderCopy
+ * if valid
+ * */
+void UIDrawImage(UIItem *Item, JESState *State)
+{
+	/**
+	 * Early return
+	 * */
+	if (!Item->Tex)
+		return;
+	/**
+	 * Literally do nothing
+	 */
+}
+
+int UICompareItem(const void *A, const void *B)
+{
+	if (((UIItem *)A)->Z < ((UIItem *)B)->Z)
+		return 1;
+	return -1;
+}
 
 /**
  * Recursively draw all children
@@ -110,6 +119,8 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 	{
 		return;
 	}
+
+	qsort(Item->items, Item->count, sizeof(Item->items[0]), UICompareItem);
 
 	switch (Item->Type)
 	{
@@ -124,76 +135,33 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 	case JES_UITYPE_TEXT:
 		UIDrawText(Item, State);
 		break;
-	case JES_UITYPE_FILESELECTOR:
+	case JES_UITYPE_IMAGE:
+		UIDrawImage(Item, State);
+		break;
+	case JES_UITYPE_BUTTON:
+		UIDrawContainer(Item, State);
+		break;
 	default:
 		break;
 	}
 
+	if (!Item->Tex)
+		return;
+
+	SDL_Texture *Old = SDL_GetRenderTarget(State->Renderer);
+	SDL_SetRenderTarget(State->Renderer,
+			    Item->Tex);
 	for (size_t i = 0; i < Item->count; ++i)
 	{
 		UIRecursiveDraw(Item->items[i], State);
 	}
-	return;
+	SDL_SetRenderTarget(State->Renderer, Old);
+
+	SDL_Rect Rect = {
+		.x = Item->X,
+		.y = Item->Y,
+		.w = Item->W,
+		.h = Item->H,
+	};
+	SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
 }
-
-/**
- * Create a UI Object of a given type
- */
-UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z)
-{
-	UIItem *Q = (UIItem *)calloc(1, sizeof(*Q));
-	if (Q == NULL)
-	{
-		return NULL;
-	}
-
-	Q->X = X;
-	Q->Y = Y;
-	Q->Z = Z;
-	Q->Type = Type;
-	Q->Parent = Parent;
-
-	if (Parent != NULL)
-		da_append(Parent, Q);
-	return Q;
-}
-
-/**
- * Recursively Free self and children
- */
-void UIFree(UIItem *Root)
-{
-	if (!Root)
-	{
-		return;
-	}
-
-	for (size_t i = 0; i < Root->count; ++i)
-	{
-		UIFree(Root->items[i]);
-		Root->items[i] = NULL;
-	}
-
-	if (Root->Tex)
-	{
-		if (Root->Type == JES_UITYPE_TEXT)
-		{
-			TTF_CloseFont(Root->as.Text.Font);
-		}
-		SDL_DestroyTexture(Root->Tex);
-		Root->Tex = NULL;
-	}
-
-	free(Root);
-}
-
-void UIRecursiveTick(UIItem *Root)
-{
-	if (!Root)
-		return;
-	if (Root->Tick)
-		Root->Tick(Root);
-	for (size_t i = 0; i < Root->count; ++i)
-		UIRecursiveTick(Root->items[i]);
-}
-

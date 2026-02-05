@@ -11,114 +11,9 @@
 
 #include <main.h>
 #include <ui/main.h>
-#include <ui/render.h>
+#include <ui/window.h>
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-
-void tick(UIItem *Item)
-{
-	size_t targetY = Item->items[0]->Y - Item->items[2]->H / 2;
-	size_t speed = 1;
-	if (Item->items[2]->Y < targetY)
-		Item->items[2]->Y += speed;
-	else if (Item->items[2]->Y > targetY)
-		Item->items[2]->Y -= speed;
-	Item->items[2]->X = Item->W - 10 - Item->items[2]->W;
-	Item->items[1]->X = 10;
-        Item->items[1]->Y = Item->State->MouseY;
-
-	if (Item->Events.items)
-	{
-		free(Item->Events.items);
-		Item->Events.count =
-			Item->Events.capacity = 0;
-		Item->Events.items = NULL;
-	}
-}
-
-void ball(UIItem *Item)
-{
-	static int dx = 1, dy = 1;
-	static int scoreA = 0, scoreB = 0;
-
-	// Ball -- Wall
-	if (Item->X +
-	    Item->W >= Item->Parent->W)
-	{
-		dx = -1;
-		scoreA += 1;
-		printf("yippee\n");
-		Item->X = Item->Parent->W / 2;
-		Item->Y = Item->Parent->H / 2;
-		Item->Parent->redraw = true;
-		free(Item->Parent->items[3]->as.Text.items);
-		Item->Parent->items[3]->as.Text.items = NULL;
-		Item->Parent->items[3]->as.Text.count =
-			Item->Parent->items[3]->as.Text.capacity = 0;
-		Item->Parent->items[3]->as.Text.items = malloc(1024);
-		Item->Parent->items[3]->redraw = true;
-		sprintf(Item->Parent->items[3]->as.Text.items, "%d", scoreA - scoreB);
-		return;
-	}
-	else if (Item->X <= 0)
-	{
-		dx = 1;
-		scoreB += 1;
-		printf("oh no\n");
-		Item->X = Item->Parent->W / 2;
-		Item->Y = Item->Parent->H / 2;
-		Item->Parent->redraw = true;
-		free(Item->Parent->items[3]->as.Text.items);
-		Item->Parent->items[3]->as.Text.items = NULL;
-		Item->Parent->items[3]->as.Text.count =
-			Item->Parent->items[3]->as.Text.capacity = 0;
-		Item->Parent->items[3]->as.Text.items = malloc(1024);
-		Item->Parent->items[3]->redraw = true;
-		sprintf(Item->Parent->items[3]->as.Text.items, "%d", scoreA - scoreB);
-		return;
-	}
-	if (Item->Y +
-	    Item->H >= Item->Parent->H)
-		dy = -1;
-	else if (Item->Y <= 0)
-		dy = 1;
-	
-	UIItem *Ball = Item,
-	       *PaddleA = Item->Parent->items[1],
-	       *PaddleB = Item->Parent->items[2];
-
-	// Ball -- PaddleA
-	if (Ball->X < PaddleA->X + PaddleA->W &&
-	    Ball->X + Ball->W > PaddleA->X &&
-	    Ball->Y < PaddleA->Y + PaddleA->H &&
-	    Ball->Y + Ball->H > PaddleA->Y)
-	{
-		dx = abs(dx);
-	}
-
-	// Ball -- PaddleB
-	if (Ball->X < PaddleB->X + PaddleB->W &&
-	    Ball->X + Ball->W > PaddleB->X &&
-	    Ball->Y < PaddleB->Y + PaddleB->H &&
-	    Ball->Y + Ball->H > PaddleB->Y)
-	{
-		dx = -abs(dx);
-	}
-
-	Item->X += dx;
-	Item->Y += dy;
-	Item->Parent->redraw = true;
-}
-
-void textInit(UIItem *Item)
-{
-	static bool initialised = false;
-	if (!initialised)
-	{
-		Item->as.Text.Font = TTF_OpenFont("bin/dos.ttf", Item->as.Text.FontSize);
-		initialised = true;
-	}
-}
 
 int main(void)
 {
@@ -127,60 +22,60 @@ int main(void)
 	 *	all access must be locked.
 	 * */
 
-	const int32_t WW = 500, WH = 480, BW = 8, BH = 8,
-		      PW = 8,   PH = 64;
+	const int32_t WW = 512, WH = 512;
+
+	JESState State = {.initialX = SDL_WINDOWPOS_CENTERED,
+			  .initialY = SDL_WINDOWPOS_CENTERED,
+			  .initialWidth = WW,
+			  .initialHeight = WH,
+			  .title = "JES v0.1"};
+	if (UIBegin(&State) > 0)
+		exit(1);
 
 	UIItem *Root = UICreate(NULL, JES_UITYPE_CONTAINER, 0, 0, 0);
 	Root->W = WW;
 	Root->H = WH;
-	Root->as.Container.ColourRGBA = 0x004400FF;
+	Root->ColourRGBA = 0x000000FF;
 	Root->redraw = true;
-	Root->Tick = tick;
+	Root->State = &State;
 
-	UIItem *Ball = UICreate(Root, JES_UITYPE_CONTAINER, WW / 2, WH / 2, 0);
-	Ball->W = BW;
-	Ball->H = BH;
-	Ball->as.Container.ColourRGBA = 0xAAAA00FF;
-	Ball->redraw = true;
-	Ball->Tick = ball;
+        for (size_t i = 0; i < WW / 128; ++i)
+        {
+        	UIItem *Btn = UICreate(Root, JES_UITYPE_BUTTON, 0, 0, 0);
+        	Btn->W = 128;
+        	Btn->H = 20;
+        	Btn->redraw = true;
+        	Btn->ColourRGBA = 0x00F0F0FF;
 
-	UIItem *PaddleA = UICreate(Root, JES_UITYPE_CONTAINER, 10, WH / 2, 0);
-	PaddleA->W = PW;
-	PaddleA->H = PH;
-	PaddleA->as.Container.ColourRGBA = 0xAAAA00FF;
-	PaddleA->redraw = true;
+        	UIItem *Text = UICreate(Btn, JES_UITYPE_TEXT, 0, 0, 1);
+        	Text->as.Text.items = strdup("Click Me!");
+        	Text->as.Text.FontSize = 16;
+        	Text->ColourRGBA = 0x000000FF;
+        	Text->redraw = true;
+        	Text->as.Text.Font = TTF_OpenFont("assets/dos.ttf", Text->as.Text.FontSize);
+        }
 
-	UIItem *PaddleB = UICreate(Root, JES_UITYPE_CONTAINER, WW - 10 - PW, WH / 2, 0);
-	PaddleB->W = PW;
-	PaddleB->H = PH;
-	PaddleB->as.Container.ColourRGBA = 0xAAAA00FF;
-	PaddleB->redraw = true;
+	UIItem *Body = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, 0);
+        Body->W = WW;
+        Body->H = WH - 20;
+	Body->ColourRGBA = 0x0000FFFF;
+	Body->redraw = true;
 
-	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 0, 0);
-	Text->as.Text.items = strdup("0");
-	Text->as.Text.FontSize = 24;
-	Text->W = 64;
-	Text->H = 24;
-	Text->redraw = true;
-	Text->Tick = textInit;
+        UIFlexX(Root);
 
-	JESState State = {
-		.initialX = SDL_WINDOWPOS_CENTERED,
-		.initialY = SDL_WINDOWPOS_CENTERED,
-		.X = SDL_WINDOWPOS_CENTERED,
-		.Y = SDL_WINDOWPOS_CENTERED,
-		.initialWidth  = WW,
-		.initialHeight = WH,
-		.Width = WW,
-		.Height = WH,
-		.FrameDelay = 1,
-		.running  = true,
-		.root = Root,
-		.title = "JES v0.1",
-	};
+	State.X = SDL_WINDOWPOS_CENTERED;
+	State.Y = SDL_WINDOWPOS_CENTERED;
+	State.Width = WW;
+	State.Height = WH;
+	State.FrameDelay = 1;
+	State.running  = true;
+	State.root = Root;
 
-        Root->State = &State;
-	StartRendering(&State);
+	while (State.running)
+	{
+		UIUpdate(&State);
+	}
+	UIEnd(&State);
 	UIFree(Root);
 	return 0;
 }
