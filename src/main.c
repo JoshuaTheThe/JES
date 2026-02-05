@@ -25,18 +25,10 @@ void tick(UIItem *Item)
 		Item->items[2]->Y -= speed;
 	Item->items[2]->X = Item->W - 10 - Item->items[2]->W;
 	Item->items[1]->X = 10;
+        Item->items[1]->Y = Item->State->MouseY;
 
 	if (Item->Events.items)
 	{
-		/* TODO - Dispatch to the correct children based on position // focus */
-
-		for (size_t i = 0; i < Item->Events.count; ++i)
-		{
-			if (Item->Events.items[i].type == SDL_MOUSEMOTION)
-			{
-				Item->items[1]->Y = Item->Events.items[i].motion.y;
-			}
-		}
 		free(Item->Events.items);
 		Item->Events.count =
 			Item->Events.capacity = 0;
@@ -186,6 +178,8 @@ int main(void)
 		.root = Root,
 		.title = "JES v0.1",
 	};
+
+        Root->State = &State;
 	StartRendering(&State);
 	UIFree(Root);
 	return 0;

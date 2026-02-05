@@ -25,9 +25,9 @@ typedef struct JESState
 	const int32_t initialX, initialY;
 	int32_t Width, Height;
 	int32_t X, Y, FrameDelay;
+        int32_t MouseX, MouseY, MouseB;
 
 	bool running;
-
 	SDL_Renderer *Renderer;
 	SDL_Window *Window;
 } JESState;

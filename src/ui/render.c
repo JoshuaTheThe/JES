@@ -64,6 +64,11 @@ void StartRendering(JESState *State)
 		{
 			switch (ev.type)
 			{
+                        case SDL_MOUSEMOTION:
+				pthread_mutex_lock(&lock);
+                                State->MouseB = SDL_GetMouseState(&State->MouseX, &State->MouseY);
+				pthread_mutex_unlock(&lock);
+                                break;
 			case SDL_QUIT:
 				pthread_mutex_lock(&lock);
 				State->running = false;

@@ -62,6 +62,7 @@ typedef struct UIItem
 {
 	UIEventQueue Events;
 	UIItem **items, *Parent;
+        JESState *State;
 	SDL_Texture *Tex;
 	UIType Type;
 	size_t X, Y, Z, W, H;
