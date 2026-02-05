@@ -47,6 +47,8 @@ void UIFree(UIItem *Root)
 	{
 		if (Root->Type == JES_UITYPE_TEXT)
 		{
+                        free(Root->as.Text.items);
+                        Root->as.Text.items = NULL;
 			TTF_CloseFont(Root->as.Text.Font);
 		}
 		SDL_DestroyTexture(Root->Tex);
