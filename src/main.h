@@ -34,7 +34,7 @@ typedef struct JESState
 
 typedef struct STRING
 {
-        char *items;
+	char *items;
 	size_t count, capacity;
 } STRING;
 
