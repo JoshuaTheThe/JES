@@ -65,7 +65,7 @@ void UIUpdate(JESState *State)
 		UIRecursiveDraw(State->root, State);
 		SDL_RenderPresent(State->Renderer);
 	}
-        
+	
 	State->MouseB = SDL_GetMouseState(&State->MouseX, &State->MouseY);
 	UIRecursiveTick(State->root);
 	SDL_Delay(FrameDelay);

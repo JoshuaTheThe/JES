@@ -53,13 +53,13 @@ typedef struct UIText
 
 typedef struct UITag
 {
-        STRING Name;
-        UIItem *Item;
+	STRING Name;
+	UIItem *Item;
 } UITag;
 
 typedef struct UITags
 {
-        UITag *items;
+	UITag *items;
 	size_t count, capacity;
 } UITags;
 
@@ -81,7 +81,7 @@ typedef struct UIEventQueue
 typedef struct UIItem
 {
 	UIEventQueue Events;
-        UITags Tags;
+	UITags Tags;
 	UIItem **items, *Parent;
 	JESState *State;
 	SDL_Texture *Tex;
