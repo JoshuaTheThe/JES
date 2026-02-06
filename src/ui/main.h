@@ -51,6 +51,18 @@ typedef struct UIText
 	size_t count, capacity;
 } UIText;
 
+typedef struct UITag
+{
+        STRING Name;
+        UIItem *Item;
+} UITag;
+
+typedef struct UITags
+{
+        UITag *items;
+	size_t count, capacity;
+} UITags;
+
 /**
  * If not cleared or sorted, we will run out of memory.
  * please process events, even if your just deleting them.
@@ -69,6 +81,7 @@ typedef struct UIEventQueue
 typedef struct UIItem
 {
 	UIEventQueue Events;
+        UITags Tags;
 	UIItem **items, *Parent;
 	JESState *State;
 	SDL_Texture *Tex;
@@ -87,39 +100,6 @@ typedef struct UIItem
 	void (*Tick)(UIItem *Self);
 } UIItem;
 
-#define da_append(xs, x)									   \
-	do											 \
-	{											  \
-		if ((xs)->count >= (xs)->capacity)						 \
-		{										  \
-			if ((xs)->capacity == 0)						   \
-				(xs)->capacity = 256;					      \
-			else								       \
-				(xs)->capacity *= 2;					       \
-			(xs)->items = realloc((xs)->items, (xs)->capacity * sizeof(*(xs)->items)); \
-		}										  \
-												   \
-		(xs)->items[(xs)->count++] = (x);						  \
-	} while (0)
-
-#define da_find(xs, x, res)				    \
-	do						     \
-	{						      \
-		res = -1;				      \
-		for (size_t _n_ = 0; _n_ < (xs)->count; ++_n_) \
-			if ((xs)->items[_n_] == x)	     \
-				res = _n_;		     \
-	} while (0)
-
-#define da_free(xs)			       \
-	do					\
-	{					 \
-		free((xs)->items);		\
-		(xs)->items = NULL;	       \
-		(xs)->count = (xs)->capacity = 0; \
-	} while (0)
-
-
 UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z);
 void UIRecursiveDraw(UIItem *Item, JESState *State);
 void UIFree(UIItem *Root);
@@ -128,6 +108,9 @@ int UICompareItem(const void *A, const void *B);
 void UIFlexX(UIItem *Item);
 void UITranslate(UIItem *Item, int32_t *OutX, int32_t *OutY);
 UIItem *UIRoot(UIItem *Item);
+void UICreateTag(UIItem *Item, UIItem *Source, const char *Name);
+UITag *UIFindTag(UIItem *Item, const char *Name, size_t *OutIdx);
+void UIRemoveTag(UIItem *Item, const char *Name);
 
 #endif
 

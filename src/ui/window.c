@@ -1,6 +1,6 @@
+#include <main.h>
 #include <ui/main.h>
 #include <ui/window.h>
-#include <main.h>
 
 /**
  * UIUpdate()
