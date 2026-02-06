@@ -17,6 +17,21 @@ void DropDown(UIItem *Self, size_t X, size_t Y)
 	UIRoot(Self)->redraw = true;
 }
 
+void DropUp(UIItem *Self, size_t X, size_t Y)
+{
+	(void)X;
+	(void)Y;
+	printf(" [INFO] Hello, from %p\n", (void *)Self);
+	free(Self->items[0]->as.Text.items);
+	Self->items[0]->as.Text.count = 9;
+	Self->items[0]->as.Text.capacity = 9;
+	Self->items[0]->as.Text.items = strdup("Sub-Menu");
+	Self->items[0]->redraw = true;
+	Self->redraw = true;
+	Self->Parent->redraw = true;
+	UIRoot(Self)->redraw = true;
+}
+
 void ButtonToggleDropDown(UIItem *Self, size_t X, size_t Y)
 {
 	(void)X;
@@ -121,6 +136,7 @@ int main(void)
 			Sub->ColourRGBA = 0x00F0F0FF;
 			Sub->visible = false;
 			Sub->as.Button.MouseDown[JES_UI_BUTTON_LEFT] = DropDown;
+			Sub->as.Button.MouseUp[JES_UI_BUTTON_LEFT] = DropUp;
 			Sub->interactable = false;
 
 			UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, 1);
