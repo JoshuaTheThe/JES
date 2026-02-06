@@ -1,19 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <pthread.h>
-#include <math.h>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_image.h>
-
-#include <main.h>
+#include <jes.h>
 #include <ui/main.h>
 #include <ui/window.h>
-
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 void DropDown(UIItem *Self, size_t X, size_t Y)
 {

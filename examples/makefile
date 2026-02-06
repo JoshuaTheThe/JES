@@ -2,8 +2,7 @@
 override MAKEFLAGS += -rR
 
 # This is the name that our final executable will have.
-# Change as needed.
-override OUTPUT := libjes.a
+override OUTPUT := test
 
 # Convenience macro to reliably declare user overridable variables.
 define DEFAULT_VAR =
@@ -27,7 +26,7 @@ $(eval $(call DEFAULT_VAR,KLD,$(DEFAULT_KLD)))
 override DEFAULT_KCFLAGS := -Wall -Wextra -g -Wpedantic
 $(eval $(call DEFAULT_VAR,KCFLAGS,$(DEFAULT_KCFLAGS)))
 
-# User controllable C preprocessor flags. We set none by default.
+# User controllable C preprocessor flags.
 override DEFAULT_KCPPFLAGS :=
 $(eval $(call DEFAULT_VAR,KCPPFLAGS,$(DEFAULT_KCPPFLAGS)))
 
@@ -35,7 +34,8 @@ $(eval $(call DEFAULT_VAR,KCPPFLAGS,$(DEFAULT_KCPPFLAGS)))
 override DEFAULT_KNASMFLAGS := -g
 $(eval $(call DEFAULT_VAR,KNASMFLAGS,$(DEFAULT_KNASMFLAGS)))
 
-override DEFAULT_KLDFLAGS := -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
+# User controllable linker flags - ADD YOUR LIBRARY HERE
+override DEFAULT_KLDFLAGS := -L../bin -ljes -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
 $(eval $(call DEFAULT_VAR,KLDFLAGS,$(DEFAULT_KLDFLAGS)))
 
 # Internal C flags that should not be changed by the user.
@@ -44,12 +44,12 @@ override KCFLAGS += \
     -Wextra \
     -std=gnu11 \
     -m64 \
-    -march=native \
-    -fPIC
+    -march=native
 
-# Internal C preprocessor flags that should not be changed by the user.
+# Internal C preprocessor flags - ADD LIBRARY HEADER PATH
 override KCPPFLAGS := \
-    -I src \
+    -I examples \
+    -I ../src \
     $(KCPPFLAGS)
 
 # Internal nasm flags that should not be changed by the user.
@@ -62,13 +62,12 @@ override KLDFLAGS += \
     -m64 \
     -lgcc
 
-# Use "find" to glob all *.c, *.S, and *.asm files in the tree and obtain the
-# object and header dependency file names.
-override CFILES := $(shell cd src && find -L * -type f -name '*.c' | LC_ALL=C sort)
-override ASFILES := $(shell cd src && find -L * -type f -name '*.S' | LC_ALL=C sort)
-override NASMFILES := $(shell cd src && find -L * -type f -name '*.asm' | LC_ALL=C sort)
-override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o) $(NASMFILES:.asm=.asm.o))
-override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
+# Use "find" to glob all *.c, *.S, and *.asm files in examples directory
+override CFILES := $(shell find src -type f -name '*.c' | LC_ALL=C sort)
+override ASFILES := $(shell find src -type f -name '*.S' | LC_ALL=C sort)
+override NASMFILES := $(shell find src -type f -name '*.asm' | LC_ALL=C sort)
+override OBJ := $(addprefix obj/,$(notdir $(CFILES:.c=.c.o)) $(notdir $(ASFILES:.S=.S.o)) $(notdir $(NASMFILES:.asm=.asm.o)))
+override HEADER_DEPS := $(addprefix obj/,$(notdir $(CFILES:.c=.c.d)) $(notdir $(ASFILES:.S=.S.d)))
 
 # Default target.
 .PHONY: all
@@ -77,7 +76,7 @@ all: bin/$(OUTPUT)
 # Link rules for the final executable.
 bin/$(OUTPUT): $(OBJ)
 	mkdir -p "$$(dirname $@)"
-	ar rcs $@ $(OBJ)
+	$(KLD) $(OBJ) $(KLDFLAGS) -o $@
 
 # Include header dependencies.
 -include $(HEADER_DEPS)
@@ -85,10 +84,10 @@ bin/$(OUTPUT): $(OBJ)
 # Compilation rules for *.c files.
 obj/%.c.o: src/%.c
 	mkdir -p "$$(dirname $@)"
-	$(KCC) $(KCFLAGS) $(KCPPFLAGS) -c $< -o $@
+	$(KCC) $(KCFLAGS) $(KCPPFLAGS) -MMD -c $< -o $@
 
 # Compilation rules for *.s (gas) files.
-obj/%.S.o: src/%.s
+obj/%.S.o: src/%.S
 	mkdir -p "$$(dirname $@)"
 	$(KCC) $(KCFLAGS) $(KCPPFLAGS) -c $< -o $@
 

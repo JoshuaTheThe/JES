@@ -12,7 +12,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_image.h>
 
-#include <main.h>
+#include <jes.h>
 #include <ui/main.h>
 
 int UIBegin(JESState *);

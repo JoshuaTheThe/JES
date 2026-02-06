@@ -1,6 +1,8 @@
-#include <main.h>
+#include<jes.h>
 #include <ui/main.h>
 #include <ui/window.h>
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * UIUpdate()
