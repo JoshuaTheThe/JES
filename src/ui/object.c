@@ -63,14 +63,16 @@ void UIFree(UIItem *Root)
 
 void UITranslate(UIItem *Item, int32_t *OutX, int32_t *OutY)
 {
-	int32_t X = 0;
-	int32_t Y = 0;
+	int32_t X = Item->X;
+	int32_t Y = Item->Y;
 
-	while (Item->Parent)
+	UIItem *Parent = Item->Parent;
+
+	while (Parent)
 	{
-		X += Item->X;
-		Y += Item->Y;
-		Item = Item->Parent;
+		X += Parent->X;
+		Y += Parent->Y;
+		Parent = Parent->Parent;
 	}
 
 	*OutX = X;

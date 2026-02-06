@@ -15,11 +15,17 @@
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
+void DropDown(UIItem *Self, size_t X, size_t Y)
+{
+        (void)X;
+        (void)Y;
+        printf(" [INFO] Hello, from %p\n", Self);
+}
+
 void ButtonToggleDropDown(UIItem *Self, size_t X, size_t Y)
 {
         (void)X;
         (void)Y;
-        const size_t ROWH = 20, ROWS = 9;
 
         UIItem *container = Self->Parent;
         bool newVisibility = !container->items[1]->visible;
@@ -28,20 +34,17 @@ void ButtonToggleDropDown(UIItem *Self, size_t X, size_t Y)
                 if (__i > 0)
                 {
                         i->visible = newVisibility;
+                        i->interactable = newVisibility;
                         i->redraw = true;
                 }
         })
 
+        const size_t RowH = 20, RowS = 9;
         if (newVisibility)
-        {
-                container->H = ROWH * ROWS;
-        }
+                container->H = RowH * RowS;
         else
-        {
-                container->H = ROWH;
-        }
+                container->H = RowH;
 
-        UIFlexX(container);
         Self->redraw = true;
         container->redraw = true;
         UIRoot(container)->redraw = true;
@@ -72,35 +75,38 @@ int main(void)
         Root->redraw = true;
         Root->State = &State;
         Root->visible = true;
+        Root->interactable = true;
 
         for (int32_t i = 0; i < WW / 128; ++i)
         {
-                const size_t RowH = 20;
+                const size_t RowH = 20, RowS = 9;
 
                 /**
                  * Primary Container
                  */
 
-                UIItem *Con = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, WW / 128 - i);
+                UIItem *Con = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, 1000 + i);
                 Con->W = 128;
-                Con->H = RowH;
+                Con->H = RowH * RowS;
                 Con->redraw = true;
                 Con->ColourRGBA = 0x00F0F0FF;
                 Con->visible = true;
+                Con->interactable = true;
 
                 /**
                  * Button && Button Text
                  */
 
-                UIItem *Btn = UICreate(Con, JES_UITYPE_BUTTON, 0, 0, 1);
+                UIItem *Btn = UICreate(Con, JES_UITYPE_BUTTON, 0, 0, 1000);
                 Btn->W = 128;
                 Btn->H = RowH;
                 Btn->redraw = true;
                 Btn->ColourRGBA = 0x00F0F0FF;
                 Btn->visible = true;
                 Btn->as.Button.MouseDown[JES_UI_BUTTON_LEFT] = ButtonToggleDropDown;
+                Btn->interactable = true;
 
-                UIItem *Text = UICreate(Btn, JES_UITYPE_TEXT, 0, 0, 1);
+                UIItem *Text = UICreate(Btn, JES_UITYPE_TEXT, 0, 0, 0);
                 Text->as.Text.items = strdup("Click Me!");
                 Text->as.Text.FontSize = 16;
                 Text->ColourRGBA = 0x000000FF;
@@ -112,12 +118,14 @@ int main(void)
 
                 for (size_t j = 0; j < 8; ++j)
                 {
-                        UIItem *Sub = UICreate(Con, JES_UITYPE_BUTTON, 0, 0, 8 - j);
+                        UIItem *Sub = UICreate(Con, JES_UITYPE_BUTTON, 0, 0, j);
                         Sub->W = 128;
                         Sub->H = RowH;
                         Sub->redraw = true;
                         Sub->ColourRGBA = 0x00F0F0FF;
                         Sub->visible = false;
+                        Sub->as.Button.MouseDown[JES_UI_BUTTON_LEFT] = DropDown;
+                        Sub->interactable = false;
 
                         UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, 1);
                         Text->as.Text.items = strdup("Sub-Menu");
@@ -129,14 +137,8 @@ int main(void)
                 }
 
                 UIFlexX(Con);
+                Con->H = RowH;
         }
-
-        UIItem *Body = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, 0);
-        Body->W = WW;
-        Body->H = WH - 20;
-        Body->ColourRGBA = 0x0000FFFF;
-        Body->redraw = true;
-        Body->visible = true;
 
         UIFlexX(Root);
 

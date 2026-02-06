@@ -76,7 +76,7 @@ typedef struct UIItem
 	int32_t X, Y, Z, W, H;
 	uint32_t ColourRGBA;
 	size_t count, capacity;
-	bool redraw, focused, visible;
+	bool redraw, focused, visible, interactable;
 
 	union
 	{
