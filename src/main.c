@@ -63,7 +63,8 @@ int main(void)
 {
 	/**
 	 *	State is shared across the whole program,
-	 *	all access must be locked.
+	 *	all access must be locked in multithreaded
+         *      Applications.
 	 * */
 
 	const int32_t WW = 512, WH = 512;
