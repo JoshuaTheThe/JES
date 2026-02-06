@@ -19,7 +19,7 @@ void DropDown(UIItem *Self, size_t X, size_t Y)
 {
 	(void)X;
 	(void)Y;
-	printf(" [INFO] Hello, from %p\n", Self);
+	printf(" [INFO] Hello, from %p\n", (void *)Self);
 	free(Self->items[0]->as.Text.items);
 	Self->items[0]->as.Text.count = 9;
 	Self->items[0]->as.Text.capacity = 9;
