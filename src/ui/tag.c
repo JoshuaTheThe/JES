@@ -22,8 +22,8 @@ void UICreateTag(UIItem *Item, UIItem *Source, const char *Name)
         UITag tag = {
                 .Item = Source,
                 .Name.items = strdup(Name),
-                .Name.capacity = strlen(Name),
-                .Name.count = strlen(Name),
+                .Name.capacity = strlen(Name)+1,
+                .Name.count = strlen(Name)+1,
         };
 
         da_append(&Item->Tags, tag);
@@ -34,8 +34,5 @@ void UIRemoveTag(UIItem *Item, const char *Name)
         size_t Index;
         UITag *tag = UIFindTag(Item, Name, &Index);
 
-        if (tag)
-        {
-
-        }
+        /* TODO - Rotate array and remove */
 }
