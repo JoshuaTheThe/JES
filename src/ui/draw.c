@@ -93,6 +93,7 @@ create:
  * */
 void UIDrawImage(UIItem *Item, JESState *State)
 {
+	(void)State;
 	/**
 	 * Early return
 	 * */
@@ -115,7 +116,7 @@ int UICompareItem(const void *A, const void *B)
  * */
 void UIRecursiveDraw(UIItem *Item, JESState *State)
 {
-	if (!Item)
+	if (!Item || !(Item->ColourRGBA & 0xFF))
 	{
 		return;
 	}
@@ -157,11 +158,14 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 	}
 	SDL_SetRenderTarget(State->Renderer, Old);
 
-	SDL_Rect Rect = {
-		.x = Item->X,
-		.y = Item->Y,
-		.w = Item->W,
-		.h = Item->H,
-	};
-	SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
+	if (Item->visible)
+	{
+		SDL_Rect Rect = {
+			.x = Item->X,
+			.y = Item->Y,
+			.w = Item->W,
+			.h = Item->H,
+		};
+		SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
+	}
 }

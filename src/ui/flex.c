@@ -1,5 +1,5 @@
-#include<main.h>
-#include<ui/main.h>
+#include <main.h>
+#include <ui/main.h>
 
 void UIFlexX(UIItem *Item)
 {
@@ -8,6 +8,9 @@ void UIFlexX(UIItem *Item)
 	int32_t RowHeight = 0;
 
 	foreach (Element, Item, {
+		if (!Element->visible)
+			continue;
+
 		if (CurrentX + Element->W > Item->W && CurrentX > 0)
 		{
 			CurrentY += RowHeight;
