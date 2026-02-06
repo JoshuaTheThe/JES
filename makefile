@@ -44,7 +44,7 @@ override KCFLAGS += \
     -Wextra \
     -std=gnu11 \
     -m64 \
-    -march=x86-64 \
+    -march=native \
 
 # Internal C preprocessor flags that should not be changed by the user.
 override KCPPFLAGS := \
