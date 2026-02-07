@@ -129,10 +129,11 @@ void UIDrawImage(UIItem *Item, JESState *State)
 
 int UICompareItem(const void *A, const void *B)
 {
-	const UIItem *itemA = (const UIItem *)A;
-	const UIItem *itemB = (const UIItem *)B;
-        printf("Comparing Z: %d vs %d\n", itemA->Z, itemB->Z);
-        return (itemA->Z > itemB->Z) - (itemA->Z < itemB->Z);
+	if (((UIItem *)A)->Z < ((UIItem *)B)->Z)
+		return 1;
+\tif (((UIItem *)A)->Z > ((UIItem *)B)->Z)
+		return -1;
+	return 0;
 }
 
 /**
