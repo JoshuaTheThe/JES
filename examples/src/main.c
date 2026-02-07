@@ -63,11 +63,11 @@ void ButtonToggleDropDown(UIItem *Self, size_t X, size_t Y)
 
 void tick(UIItem *Self)
 {
-        if (Self->Events.count)
-        {
-                free(Self->Events.items);
-                memset(&Self->Events, 0, sizeof(Self->Events));
-        }
+	if (Self->Events.count)
+	{
+		free(Self->Events.items);
+		memset(&Self->Events, 0, sizeof(Self->Events));
+	}
 }
 
 int main(void)
@@ -96,7 +96,7 @@ int main(void)
 	Root->State = &State;
 	Root->visible = true;
 	Root->interactable = true;
-        Root->Tick = tick;
+	Root->Tick = tick;
 
 	for (int32_t i = 0; i < WW / 128; ++i)
 	{
@@ -162,7 +162,9 @@ int main(void)
 		Con->H = RowH;
 	}
 
-	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 0, 0);
+	UIFlexX(Root);
+
+	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 20, 0);
 	Text->as.Text.items = strdup("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vehicula nisl ut ultrices sollicitudin. Duis eu efficitur metus, eget mattis est. Cras bibendum nulla eget imperdiet fringilla. Mauris consectetur risus vitae interdum rutrum. Nam in rutrum metus. Donec elementum tortor in erat aliquet pulvinar. Nunc volutpat felis nec nibh sodales lobortis sodales non elit. Vestibulum ultrices varius lectus, at semper metus rutrum laoreet. Vestibulum eu felis euismod, lobortis ligula ut, sagittis libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non ipsum id leo scelerisque varius. ");
 	Text->as.Text.FontSize = 16;
 	Text->ColourRGBA = 0xFFFF00FF;
@@ -171,8 +173,6 @@ int main(void)
 	Text->visible = true;
 	Text->as.Text.wrap = true;
 	UIDrawText(Text, &State);
-
-	UIFlexX(Root);
 
 	State.X = SDL_WINDOWPOS_CENTERED;
 	State.Y = SDL_WINDOWPOS_CENTERED;

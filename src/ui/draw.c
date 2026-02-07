@@ -129,9 +129,12 @@ void UIDrawImage(UIItem *Item, JESState *State)
 
 int UICompareItem(const void *A, const void *B)
 {
-	if (((UIItem *)A)->Z < ((UIItem *)B)->Z)
+	UIItem *itemA = *(UIItem **)A;
+	UIItem *itemB = *(UIItem **)B;
+	
+	if (itemA->Z > itemB->Z)
 		return 1;
-	if (((UIItem *)A)->Z > ((UIItem *)B)->Z)
+	if (itemA->Z < itemB->Z)
 		return -1;
 	return 0;
 }
@@ -146,7 +149,9 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 		return;
 	}
 
-	qsort(Item->items, Item->count, sizeof(Item->items[0]), UICompareItem);
+	UIItem **Items = calloc(Item->count, sizeof(Item->items[0]));
+	memcpy(Items, Item->items, Item->count * sizeof(Item->items[0]));
+	qsort(Items, Item->count, sizeof(Item->items[0]), UICompareItem);
 
 	switch (Item->Type)
 	{
@@ -179,7 +184,7 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 			    Item->Tex);
 	for (size_t i = 0; i < Item->count; ++i)
 	{
-		UIRecursiveDraw(Item->items[i], State);
+		UIRecursiveDraw(Items[i], State);
 	}
 	SDL_SetRenderTarget(State->Renderer, Old);
 
@@ -193,4 +198,6 @@ void UIRecursiveDraw(UIItem *Item, JESState *State)
 		};
 		SDL_RenderCopy(State->Renderer, Item->Tex, NULL, &Rect);
 	}
+
+	free(Items);
 }
