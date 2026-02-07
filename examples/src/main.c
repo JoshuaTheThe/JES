@@ -61,6 +61,15 @@ void ButtonToggleDropDown(UIItem *Self, size_t X, size_t Y)
 	printf(" [INFO] Drop Down\n");
 }
 
+void tick(UIItem *Self)
+{
+        if (Self->Events.count)
+        {
+                free(Self->Events.items);
+                memset(&Self->Events, 0, sizeof(Self->Events));
+        }
+}
+
 int main(void)
 {
 	/**
@@ -87,6 +96,7 @@ int main(void)
 	Root->State = &State;
 	Root->visible = true;
 	Root->interactable = true;
+        Root->Tick = tick;
 
 	for (int32_t i = 0; i < WW / 128; ++i)
 	{
@@ -96,7 +106,7 @@ int main(void)
 		 * Primary Container
 		 */
 
-		UIItem *Con = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, 1000 + i);
+		UIItem *Con = UICreate(Root, JES_UITYPE_CONTAINER, 0, 0, 10000 + i);
 		Con->W = 128;
 		Con->H = RowH * RowS;
 		Con->redraw = true;
@@ -139,7 +149,7 @@ int main(void)
 			Sub->as.Button.MouseUp[JES_UI_BUTTON_LEFT] = DropUp;
 			Sub->interactable = false;
 
-			UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, j + 1000);
+			UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, j + 100);
 			Text->as.Text.items = strdup("Sub-Menu");
 			Text->as.Text.FontSize = 16;
 			Text->ColourRGBA = 0x000000FF;
