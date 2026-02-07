@@ -139,7 +139,7 @@ int main(void)
 			Sub->as.Button.MouseUp[JES_UI_BUTTON_LEFT] = DropUp;
 			Sub->interactable = false;
 
-			UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, 1);
+			UIItem *Text = UICreate(Sub, JES_UITYPE_TEXT, 0, 0, j + 1000);
 			Text->as.Text.items = strdup("Sub-Menu");
 			Text->as.Text.FontSize = 16;
 			Text->ColourRGBA = 0x000000FF;

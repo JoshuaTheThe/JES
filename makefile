@@ -16,7 +16,7 @@ define DEFAULT_VAR =
 endef
 
 # User controllable C compiler command.
-override DEFAULT_KCC := cc
+override DEFAULT_KCC := cc 
 $(eval $(call DEFAULT_VAR,KCC,$(DEFAULT_KCC)))
 
 # User controllable linker command.
