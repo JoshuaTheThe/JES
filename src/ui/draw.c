@@ -139,6 +139,18 @@ int UICompareItem(const void *A, const void *B)
 	return 0;
 }
 
+int UICompareReverse(const void *A, const void *B)
+{
+	UIItem *itemA = *(UIItem **)A;
+	UIItem *itemB = *(UIItem **)B;
+	
+	if (itemA->Z < itemB->Z)
+		return 1;
+	if (itemA->Z > itemB->Z)
+		return -1;
+	return 0;
+}
+
 /**
  * Recursively draw all children
  * */

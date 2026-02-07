@@ -104,7 +104,7 @@ typedef struct UIItem
 UIItem *UICreate(UIItem *Parent, UIType Type, size_t X, size_t Y, size_t Z);
 void UIRecursiveDraw(UIItem *Item, JESState *State);
 void UIFree(UIItem *Root);
-void UIRecursiveTick(UIItem *Root);
+bool UIRecursiveTick(UIItem *Root);
 int UICompareItem(const void *A, const void *B);
 void UIFlexX(UIItem *Item);
 void UITranslate(UIItem *Item, int32_t *OutX, int32_t *OutY);
@@ -114,6 +114,7 @@ UITag *UIFindTag(UIItem *Item, const char *Name, size_t *OutIdx);
 void UIRemoveTag(UIItem *Item, const char *Name);
 void UIDrawContainer(UIItem *Item, JESState *State);
 void UIDrawText(UIItem *Item, JESState *State);
+int UICompareReverse(const void *A, const void *B);
 
 #endif
 

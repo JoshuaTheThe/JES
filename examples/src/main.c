@@ -70,6 +70,15 @@ void tick(UIItem *Self)
 	}
 }
 
+void BtnD(UIItem *Self, size_t X, size_t Y)
+{
+	(void)X;
+	(void)Y;
+	Self->ColourRGBA ^= 0xFF000000;
+	Self->redraw = true;
+	Self->Parent->redraw = true;
+}
+
 int main(void)
 {
 	/**
@@ -164,7 +173,16 @@ int main(void)
 
 	UIFlexX(Root);
 
-	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 20, 0);
+	UIItem *Btn  = UICreate(Root, JES_UITYPE_BUTTON, 0, 20, 0);
+	Btn->W = WW;
+	Btn->H = WH - 20;
+	Btn->redraw = true;
+	Btn->ColourRGBA = 0x0000FFFF;
+	Btn->visible = true;
+	Btn->as.Button.MouseDown[JES_UI_BUTTON_LEFT] = BtnD;
+	Btn->interactable = true;
+
+	UIItem *Text = UICreate(Btn, JES_UITYPE_TEXT, 0, 0, 0);
 	Text->as.Text.items = strdup("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vehicula nisl ut ultrices sollicitudin. Duis eu efficitur metus, eget mattis est. Cras bibendum nulla eget imperdiet fringilla. Mauris consectetur risus vitae interdum rutrum. Nam in rutrum metus. Donec elementum tortor in erat aliquet pulvinar. Nunc volutpat felis nec nibh sodales lobortis sodales non elit. Vestibulum ultrices varius lectus, at semper metus rutrum laoreet. Vestibulum eu felis euismod, lobortis ligula ut, sagittis libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non ipsum id leo scelerisque varius. ");
 	Text->as.Text.FontSize = 16;
 	Text->ColourRGBA = 0xFFFF00FF;
