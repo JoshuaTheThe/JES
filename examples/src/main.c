@@ -66,7 +66,7 @@ int main(void)
 	/**
 	 *	State is shared across the whole program,
 	 *	all access must be locked in multithreaded
-         *      Applications.
+	 *      Applications.
 	 * */
 
 	const int32_t WW = 512, WH = 512;
@@ -82,7 +82,7 @@ int main(void)
 	UIItem *Root = UICreate(NULL, JES_UITYPE_CONTAINER, 0, 0, 0);
 	Root->W = WW;
 	Root->H = WH;
-	Root->ColourRGBA = 0x000000FF;
+	Root->ColourRGBA = 0x0000FFFF;
 	Root->redraw = true;
 	Root->State = &State;
 	Root->visible = true;
@@ -151,6 +151,16 @@ int main(void)
 		UIFlexX(Con);
 		Con->H = RowH;
 	}
+
+	UIItem *Text = UICreate(Root, JES_UITYPE_TEXT, 0, 0, 0);
+	Text->as.Text.items = strdup("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vehicula nisl ut ultrices sollicitudin. Duis eu efficitur metus, eget mattis est. Cras bibendum nulla eget imperdiet fringilla. Mauris consectetur risus vitae interdum rutrum. Nam in rutrum metus. Donec elementum tortor in erat aliquet pulvinar. Nunc volutpat felis nec nibh sodales lobortis sodales non elit. Vestibulum ultrices varius lectus, at semper metus rutrum laoreet. Vestibulum eu felis euismod, lobortis ligula ut, sagittis libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non ipsum id leo scelerisque varius. ");
+	Text->as.Text.FontSize = 16;
+	Text->ColourRGBA = 0xFFFF00FF;
+	Text->redraw = true;
+	Text->as.Text.Font = TTF_OpenFont("assets/dos.ttf", Text->as.Text.FontSize);
+	Text->visible = true;
+	Text->as.Text.wrap = true;
+	UIDrawText(Text, &State);
 
 	UIFlexX(Root);
 

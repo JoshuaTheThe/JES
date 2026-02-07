@@ -49,6 +49,7 @@ typedef struct UIText
 	size_t FontSize;
 	char *items;
 	size_t count, capacity;
+        bool wrap;
 } UIText;
 
 typedef struct UITag
@@ -111,6 +112,8 @@ UIItem *UIRoot(UIItem *Item);
 void UICreateTag(UIItem *Item, UIItem *Source, const char *Name);
 UITag *UIFindTag(UIItem *Item, const char *Name, size_t *OutIdx);
 void UIRemoveTag(UIItem *Item, const char *Name);
+void UIDrawContainer(UIItem *Item, JESState *State);
+void UIDrawText(UIItem *Item, JESState *State);
 
 #endif
 
