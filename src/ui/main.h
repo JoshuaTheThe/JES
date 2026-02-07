@@ -49,7 +49,7 @@ typedef struct UIText
 	size_t FontSize;
 	char *items;
 	size_t count, capacity;
-        bool wrap;
+	bool wrap;
 } UIText;
 
 typedef struct UITag

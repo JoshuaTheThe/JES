@@ -131,7 +131,7 @@ int UICompareItem(const void *A, const void *B)
 {
 	if (((UIItem *)A)->Z < ((UIItem *)B)->Z)
 		return 1;
-\tif (((UIItem *)A)->Z > ((UIItem *)B)->Z)
+	if (((UIItem *)A)->Z > ((UIItem *)B)->Z)
 		return -1;
 	return 0;
 }
